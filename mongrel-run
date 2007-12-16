@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+BASE=$(dirname $(readlink $0))
+APP_DIR=$BASE/app
+
+if [ -e $BASE/mongrel_rails ]; then
+  MONGREL_RAILS=$BASE/mongrel_rails
+else
+  MONGREL_RAILS=mongrel_rails
+fi
+
+if [ -z "$PORT" ]; then
+  echo "usage: $0 port" 1>&2;
+  exit 2
+fi
+
+if [ ! -d "$APP_DIR" ]; then
+  echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
+  exit 2
+fi
+
+if [ ! -e "$MONGREL_RAILS" ]; then
+  echo "could not find mongrel_rails" 1>&2;
+  exit 2
+fi
+
+exec $MONGREL_RAILS start -e production -p $PORT -c $APP_DIR
