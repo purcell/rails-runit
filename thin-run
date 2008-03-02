@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+BASE=$(dirname $(readlink $0))
+APP_DIR=$BASE/app
+
+if [ -e $BASE/thin ]; then
+  THIN=$BASE/thin
+else
+  THIN=thin
+fi
+
+if [ -z "$PORT" ]; then
+  echo "usage: $0 port" 1>&2;
+  exit 2
+fi
+
+if [ ! -d "$APP_DIR" ]; then
+  echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
+  exit 2
+fi
+
+if [ ! -e "$THIN" ]; then
+  echo "could not find mongrel_rails" 1>&2;
+  exit 2
+fi
+
+exec $THIN start -e production -p $PORT -c $APP_DIR
