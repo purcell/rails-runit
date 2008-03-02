@@ -20,9 +20,4 @@ if [ ! -d "$APP_DIR" ]; then
   exit 2
 fi
 
-if [ ! -e "$THIN" ]; then
-  echo "could not find mongrel_rails" 1>&2;
-  exit 2
-fi
-
 exec $THIN start -e production -p $PORT -c $APP_DIR
