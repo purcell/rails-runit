@@ -2,7 +2,7 @@
 
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
 BASE=$(dirname $(readlink $0))
-APP_DIR=$BASE/app
+APP_DIR=$(readlink -e $BASE/app)
 
 if [ -e $BASE/thin ]; then
   THIN=$BASE/thin
