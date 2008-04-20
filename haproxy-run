@@ -1,0 +1,29 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+
+cat - > haproxy.conf <<END
+defaults applications HTTP
+        mode http
+        balance roundrobin
+        clitimeout 20000
+        srvtimeout 20000
+        contimeout 4000
+
+listen app
+        bind 127.0.0.1:$PORT
+	mode http
+        server app1    127.0.0.1:$(($PORT + 1))  maxconn 1 check
+        server app2    127.0.0.1:$(($PORT + 2))  maxconn 1 check
+        server app3    127.0.0.1:$(($PORT + 3))  maxconn 1 check
+        server app4    127.0.0.1:$(($PORT + 4))  maxconn 1 check
+        server app5    127.0.0.1:$(($PORT + 5))  maxconn 1 check
+        server app6    127.0.0.1:$(($PORT + 6))  maxconn 1 check
+        server app7    127.0.0.1:$(($PORT + 7))  maxconn 1 check
+        server app8    127.0.0.1:$(($PORT + 8))  maxconn 1 check
+        server app9    127.0.0.1:$(($PORT + 9))  maxconn 1 check
+        server app10   127.0.0.1:$(($PORT + 10)) maxconn 1 check
+        server appfail 127.0.0.1:$(($PORT - 1))  backup
+END
+PATH=/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin
+exec haproxy -db -f haproxy.conf
