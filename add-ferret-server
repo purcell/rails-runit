@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+SERVICE_DIR=$(dirname $0)/service
+
+NEW_SERVICE_DIR="$SERVICE_DIR/ferret-server"
+
+if [ ! -e "$NEW_SERVICE_DIR" ]; then
+  mkdir -p "$NEW_SERVICE_DIR"
+  ln -s ../../ferret-server-run $NEW_SERVICE_DIR/run
+  echo "created ferret-server service $NEW_SERVICE_DIR"
+else
+  echo "ferret-server service $NEW_SERVICE_DIR already exists" >&2
+  exit 1
+fi

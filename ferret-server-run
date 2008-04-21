@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+BASE=$(dirname $(readlink $0))
+APP_DIR=$BASE/app
+
+if [ ! -d "$APP_DIR" ]; then
+  echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
+  exit 2
+fi
+
+RAILS_ROOT=$APP_DIR exec $APP_DIR/script/ferret_server -e production run
