@@ -14,4 +14,4 @@ if [ ! -d "$APP_DIR" ]; then
   exit 2
 fi
 
-cd $APP_DIR && exec ./script/maintenance_server $PORT
+exec $APP_DIR/script/maintenance_server $PORT
