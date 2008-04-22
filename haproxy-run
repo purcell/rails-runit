@@ -3,16 +3,25 @@
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
 
 cat - > haproxy.conf <<END
-defaults applications HTTP
-        mode http
-        balance roundrobin
-        clitimeout 20000
-        srvtimeout 20000
-        contimeout 4000
+global
+        log 127.0.0.1 local0 warning
 
-listen app
-        bind 127.0.0.1:$PORT
-	mode http
+defaults
+        mode http
+	retries         3
+	option          abortonclose
+	option          redispatch
+	maxconn		4096
+	timeout connect 5000
+	timeout client  50000
+	timeout server  50000
+
+frontend rails 127.0.0.1:$PORT
+	default_backend app
+
+backend app
+	option httpchk
+        balance roundrobin
         server app1    127.0.0.1:$(($PORT + 1))  maxconn 1 check
         server app2    127.0.0.1:$(($PORT + 2))  maxconn 1 check
         server app3    127.0.0.1:$(($PORT + 3))  maxconn 1 check
