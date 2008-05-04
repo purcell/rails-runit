@@ -20,7 +20,7 @@ frontend rails 127.0.0.1:$PORT
 	default_backend app
 
 backend app
-	option httpchk
+	#option httpchk  ## Can cause a single working backend to appear offline
         balance roundrobin
         server app1    127.0.0.1:$(($PORT + 1))  maxconn 1 check
         server app2    127.0.0.1:$(($PORT + 2))  maxconn 1 check
