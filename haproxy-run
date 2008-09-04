@@ -17,10 +17,8 @@ defaults
 	timeout client  300000
 	timeout server  300000
 
-frontend rails 127.0.0.1:$PORT
-	default_backend app
-
-backend app
+listen rails_${USER}_$PORT 127.0.0.1:$PORT
+	timeout connect 300000
         server app1    127.0.0.1:$(($PORT + 1))  maxconn 1 check
         server app2    127.0.0.1:$(($PORT + 2))  maxconn 1 check
         server app3    127.0.0.1:$(($PORT + 3))  maxconn 1 check
@@ -33,7 +31,7 @@ backend app
         server app10   127.0.0.1:$(($PORT + 10)) maxconn 1 check
         server appfail 127.0.0.1:$(($PORT - 1))  backup check
 
-listen admin 127.0.0.1:$(($PORT - 2))
+listen stats 127.0.0.1:$(($PORT - 2))
 	mode http
 	stats uri /
 END
