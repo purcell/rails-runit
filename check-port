@@ -1,0 +1,3 @@
+#!/bin/sh -e
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+nc -z localhost $PORT

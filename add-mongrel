@@ -13,6 +13,7 @@ NEW_SERVICE_DIR="$SERVICE_DIR/mongrel-$PORT"
 if [ ! -e "$NEW_SERVICE_DIR" ]; then
   mkdir -p "$NEW_SERVICE_DIR"
   ln -s ../../mongrel-run $NEW_SERVICE_DIR/run
+  ln -s ../../check-port $NEW_SERVICE_DIR/check
   echo "created mongrel service $NEW_SERVICE_DIR"
 else
   echo "mongrel service $NEW_SERVICE_DIR already exists" >&2
