@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
+USER=$(id -un)
 
 cat - > haproxy.conf <<END
 global
