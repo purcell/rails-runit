@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+ME = File.basename($0)
+
+unless (filename = ARGV.first) && ARGV.size == 1
+  abort "usage: #{ME} filename"
+end
+
+require 'pathname'
+begin
+  puts Pathname.new(filename).realpath
+rescue
+  abort "#{ME}: #{$!}"
+end
