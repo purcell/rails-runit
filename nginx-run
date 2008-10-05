@@ -1,0 +1,92 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+HAPROXY_PORT=$(basename $(pwd)|awk -F- '{print $3}')
+USER=$(id -un)
+BASE=$(dirname $(readlink $0))
+APP_DIR=$($BASE/readlink_canonical $BASE/app)
+
+TEMP_BASE_DIR=/var/tmp/${USER}-nginx-${PORT}
+if [ ! -d $TEMP_BASE_DIR ]; then
+  mkdir -p $TEMP_BASE_DIR;
+  chmod og-rwx $TEMP_BASE_DIR;
+fi
+
+cat <<EOF > nginx.conf
+### DO NOT EDIT - THIS IS REGENERATED WHEN NGINX STARTS: SEE $0 ###
+daemon off;
+
+pid ${TEMP_BASE_DIR}/pid;  # we don't want this, but it's mandatory
+
+worker_processes 2;
+
+error_log ${APP_DIR}/log/nginx-errors.log;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+  access_log ${APP_DIR}/log/access.log;
+
+  fastcgi_temp_path ${TEMP_BASE_DIR}/fastcgi;
+  client_body_temp_path ${TEMP_BASE_DIR}/client-body 1 2;
+  proxy_temp_path ${TEMP_BASE_DIR}/proxy;
+
+  include       etc/nginx/mime.types;
+  default_type  application/octet-stream;
+
+  sendfile        on;
+
+  tcp_nopush     on;
+  keepalive_timeout  65;
+  tcp_nodelay        on;
+
+  gzip  on;
+  gzip_min_length  1100;
+  gzip_buffers     4 8k;
+  gzip_proxied     any;
+  gzip_types       text/plain text/html text/xhtml text/css text/js text/csv;
+
+  upstream haproxy {
+    server 127.0.0.1:$HAPROXY_PORT;
+  }
+
+  server {
+    listen       127.0.0.1:${PORT};
+    #server_name  example.com;
+
+    root ${APP_DIR}/public;
+    index  index.html index.htm;
+
+    location / {
+      proxy_set_header X-Real-IP       \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header Host            \$http_host;
+      proxy_redirect false;
+      if (-f \$request_filename/index.html) {
+        rewrite (.*) \$1/index.html break;
+      }
+
+      if (-f \$request_filename.html) {
+        rewrite (.*) \$1.html break;
+      }
+
+      if (!-f \$request_filename) {
+        proxy_pass http://haproxy;
+        break;
+      }
+    }
+
+    # For sendfile headers, e.g. "X-Accel-Redirect: /RAILS_ROOT/data/photos/123"
+    location /RAILS_ROOT/ {
+      internal;
+      root ${APP_DIR};
+    }
+
+    error_page   500 502 503 504  /500.html;
+  }
+}
+EOF
+
+exec nginx -c nginx.conf
