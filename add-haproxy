@@ -13,6 +13,7 @@ NEW_SERVICE_DIR="$SERVICE_DIR/haproxy-$PORT"
 if [ ! -e "$NEW_SERVICE_DIR" ]; then
   mkdir -p "$NEW_SERVICE_DIR"
   ln -s ../../haproxy-run $NEW_SERVICE_DIR/run
+  ln -s ../../check-port $NEW_SERVICE_DIR/check
   echo "created haproxy service $NEW_SERVICE_DIR"
 else
   echo "thin service $NEW_SERVICE_DIR already exists" >&2
