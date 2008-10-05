@@ -6,6 +6,12 @@ USER=$(id -un)
 BASE=$(dirname $(readlink $0))
 APP_DIR=$($BASE/readlink_canonical $BASE/app)
 
+if [ -e $BASE/nginx ]; then
+  NGINX=$BASE/nginx
+else
+  NGINX=nginx
+fi
+
 TEMP_BASE_DIR=/var/tmp/${USER}-nginx-${PORT}
 if [ ! -d $TEMP_BASE_DIR ]; then
   mkdir -p $TEMP_BASE_DIR;
@@ -89,4 +95,4 @@ http {
 }
 EOF
 
-exec nginx -c nginx.conf
+exec $NGINX -c nginx.conf || echo "do you need to create the symlink '$BASE/nginx?'"
