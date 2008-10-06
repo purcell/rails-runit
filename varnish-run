@@ -1,0 +1,135 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+BACKEND_PORT=$(basename $(pwd)|awk -F- '{print $3}')
+USER=$(id -un)
+BASE=$(dirname $(readlink $0))
+APP_DIR=$($BASE/readlink_canonical $BASE/app)
+
+if [ -e $BASE/varnishd ]; then
+  VARNISHD=$BASE/varnishd
+else
+  VARNISHD=varnishd
+fi
+
+TEMP_BASE_DIR=/var/tmp/${USER}-varnish-${PORT}
+if [ ! -d $TEMP_BASE_DIR ]; then
+  mkdir -p $TEMP_BASE_DIR;
+  chmod og-rwx $TEMP_BASE_DIR;
+fi
+
+cat <<EOF > varnish.conf
+backend default {
+  set backend.host = "127.0.0.1";
+  set backend.port = "$BACKEND_PORT";
+}
+
+# only allow purging of cache from localhost
+acl purge {
+  "localhost";
+}
+
+sub vcl_recv {
+  # * Normalize host headers to limit cache usage
+  if (req.http.Accept-Encoding) {
+    if (req.url ~ "\.(jpg|png|gif|gz|tgz|bz2|tbz|zip|avi|mov|mp3|ogg)$") {
+      remove req.http.Accept-Encoding;
+    } elsif (req.http.Accept-Encoding ~ "gzip") {
+      set req.http.Accept-Encoding = "gzip";
+    } elsif (req.http.Accept-Encoding ~ "deflate") {
+      set req.http.Accept-Encoding = "deflate";
+    } else {
+      # unkown algorithm
+      remove req.http.Accept-Encoding;
+    }
+  }
+  if (req.request != "GET" && req.request != "HEAD") {
+    if (req.request == "PURGE") {
+      if (!client.ip ~ purge) {
+        error 405 "Not allowed.";
+      }
+      lookup;
+    } else {
+      pipe;
+    }
+  }
+  if (req.http.Expect) {
+    pipe;
+  }
+  # pass to backend if we have HTTP authentication
+  if (req.http.Authenticate || req.http.Authorization) {
+    pass;
+  }
+  if (req.http.Cache-Control ~ "no-cache") {
+    pass;
+  }
+  lookup;
+}
+
+sub vcl_pipe {
+  pipe;
+}
+sub vcl_pass {
+  pass;
+}
+
+sub vcl_hash {
+  set req.hash += req.url;
+  set req.hash += req.http.host;
+  hash;
+}
+
+sub vcl_hit {
+  if (obj.http.X-FromFile == "yes") {
+    deliver;
+  }
+  if (!obj.cacheable) {
+    pass;
+  }
+  if (req.request == "PURGE") {
+    set obj.ttl = 0s;
+    error 200 "Purged";
+  }
+  deliver;
+}
+
+sub vcl_miss {
+  if (req.http.If-Modified-Since) {
+    pass;
+  }
+  if (req.request == "PURGE") {
+    error 404 "Not in cache";
+  }
+  fetch;
+}
+
+sub vcl_fetch {
+  if (!obj.valid) {
+      error;
+  }
+  if (!obj.cacheable) {
+      pass;
+  }
+  if (obj.http.Set-Cookie) {
+      pass;
+  }
+  if (obj.http.Pragma ~ "no-cache" || obj.http.Cache-Control ~ "no-cache" || obj.http.Cache-Control ~ "private") {
+    pass;
+  }
+  insert;
+}
+
+sub vcl_deliver {
+  deliver;
+}
+
+sub vcl_timeout {
+  discard;
+}
+
+sub vcl_discard {
+  discard;
+}
+EOF
+
+exec $VARNISHD -a 127.0.0.1:$PORT -F -f varnish.conf -s file,$TEMP_BASE_DIR -n $TEMP_BASE_DIR || echo "do you need to create the symlink '$BASE/varnishd?'"
