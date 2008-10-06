@@ -78,8 +78,11 @@ http {
         rewrite (.*) \$1.html break;
       }
 
+      # Can be used by upstream caches (e.g. varnish) if desired
+      add_header X-FromFile yes;
       if (!-f \$request_filename) {
         proxy_pass http://haproxy;
+        add_header X-FromFile no;
         break;
       }
     }
