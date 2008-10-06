@@ -18,12 +18,6 @@ if [ ! -d $TEMP_BASE_DIR ]; then
   chmod og-rwx $TEMP_BASE_DIR;
 fi
 
-if [ -e /etc/nginx/mime.types ]; then
-  MIME_TYPES=mime.types
-else
-  MIME_TYPES=etc/nginx/mime.types
-fi
-
 cat <<EOF > nginx.conf
 ### DO NOT EDIT - THIS IS REGENERATED WHEN NGINX STARTS: SEE $0 ###
 daemon off;
@@ -45,7 +39,7 @@ http {
   client_body_temp_path ${TEMP_BASE_DIR}/client-body 1 2;
   proxy_temp_path ${TEMP_BASE_DIR}/proxy;
 
-  include       $MIME_TYPES;
+  include       mime.types;
   default_type  application/octet-stream;
 
   sendfile        on;
