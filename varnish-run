@@ -80,7 +80,8 @@ sub vcl_hash {
 }
 
 sub vcl_hit {
-  if (obj.http.X-FromFile == "yes") {
+  # Ensure assets with a timestamp are cached forever
+  if (obj.http.X-FromFile == "yes" && req.url ~ "\?[0-9]+") {
     deliver;
   }
   if (!obj.cacheable) {
