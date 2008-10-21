@@ -40,8 +40,8 @@ Now you can create some services:
  ./add-haproxy 4000
  ./add-nginx 4020 4000
 
-This creates (potential) runit services under ~/rails-runit/services.
-Symlink them to ~/services, and runit will start them for you.
+This creates (potential) runit services under ~/rails-runit/service.
+Symlink them to ~/service, and runit will start them for you.
 
 Once started, you can set your system-wide web server to proxy requests
 for your Rails app to port 4000 (haproxy => mongrel * 3), or to port 4020
@@ -49,6 +49,14 @@ for your Rails app to port 4000 (haproxy => mongrel * 3), or to port 4020
 
 Browse to port 3998 (= haproxy port - 2) to see the haproxy status
 page.
+
+You can then easily restart your app (e.g. as part of a capistrano
+deployment) like this:
+
+  sv restart ~/service/mongrel-*
+
+Further "add-*" and "*-run" scripts are provided for varnish and
+ferret_server.
 
 
 Status
