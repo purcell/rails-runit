@@ -78,8 +78,17 @@ http {
         rewrite (.*) \$1.html break;
       }
 
-      # Can be used by upstream caches (e.g. varnish) if desired
-      add_header X-FromFile yes;
+      if (-f \$request_filename) {
+        # Can be used by upstream caches (e.g. varnish) if desired
+        add_header X-FromFile yes;
+        # Set a long TTL for Rails assets with "?12345" timestamps
+        if ($request_uri ~* "\?[0-9]+$") {
+          expires max;
+          break;
+        }
+      }
+
+      # Pass remaining requests to the Rails back-end
       if (!-f \$request_filename) {
         proxy_pass http://haproxy;
         add_header X-FromFile no;
