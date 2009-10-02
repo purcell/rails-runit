@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+BASE=$(dirname $(readlink $0))
+APP_DIR=$BASE/app
+
+if [ ! -d "$APP_DIR" ]; then
+  echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
+  exit 2
+fi
+
+cd $APP_DIR && RAILS_ENV=production rake ts:in && sleep 300

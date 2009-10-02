@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+SERVICE_DIR=$(dirname $0)/service
+
+NEW_SERVICE_DIR="$SERVICE_DIR/thinking-sphinx"
+
+if [ ! -e "$NEW_SERVICE_DIR" ]; then
+  mkdir -p "$NEW_SERVICE_DIR"
+  ln -s ../../thinking-sphinx-run $NEW_SERVICE_DIR/run
+  echo "created thinking-sphinx service $NEW_SERVICE_DIR"
+else
+  echo "thinking-sphinx service $NEW_SERVICE_DIR already exists" >&2
+  exit 1
+fi
