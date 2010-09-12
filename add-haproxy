@@ -16,6 +16,6 @@ if [ ! -e "$NEW_SERVICE_DIR" ]; then
   ln -s ../../check-port $NEW_SERVICE_DIR/check
   echo "created haproxy service $NEW_SERVICE_DIR"
 else
-  echo "thin service $NEW_SERVICE_DIR already exists" >&2
+  echo "haproxy service $NEW_SERVICE_DIR already exists" >&2
   exit 1
 fi
