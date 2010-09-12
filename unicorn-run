@@ -3,7 +3,7 @@
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
 BASE=$(dirname $(readlink $0))
 APP_DIR=$BASE/app
-THISDIR=`pwd`
+THIS_DIR=$(pwd)
 
 if [ -e $BASE/unicorn_rails ]; then
   UNICORN_RAILS=$BASE/unicorn_rails
@@ -22,19 +22,18 @@ if [ ! -d "$APP_DIR" ]; then
 fi
 
 cat <<EOF > unicorn.rb
-rails_env = ENV['RAILS_ENV'] || 'production'
-
-# 10 workers and 1 master
-worker_processes (rails_env == 'production' ? 10 : 4)
+worker_processes 10
 
 preload_app true
 
 # Restart any workers that haven't responded in 30 seconds
 timeout 30
 
-# Listen on a Unix data socket
-listen '127.0.0.1:$PORT', :backlog => 2048
+# listen on both a Unix domain socket and a TCP port,
+listen '$THIS_DIR/socket', :backlog => 64
+listen '127.0.0.1:$PORT', :tcp_nopush => true
 
+working_directory "$APP_DIR"
 
 # http://www.rubyenterpriseedition.com/faq.html#adapt_apps_for_cow
 if GC.respond_to?(:copy_on_write_friendly=)
@@ -43,6 +42,11 @@ end
 
 
 before_fork do |server, worker|
+  # the following is highly recomended for Rails + "preload_app true"
+  # as there's no need for the master process to hold a connection
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+
   ##
   # When sent a USR2, Unicorn will suffix its pidfile with .oldbin and
   # immediately start loading up a new version of itself (loaded with a new
@@ -77,4 +81,4 @@ after_fork do |server, worker|
 end
 EOF
 
-cd $APP_DIR && exec $UNICORN_RAILS -E production -c $THISDIR/unicorn.rb
+exec $UNICORN_RAILS -E production -c $THIS_DIR/unicorn.rb
