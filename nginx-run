@@ -65,7 +65,7 @@ http {
     root ${APP_DIR}/public;
     index index.html index.htm;
 
-    try_files  $uri/index.html $uri.html $uri @backend;
+    try_files  \$uri/index.html \$uri.html \$uri @backend;
 
     location @backend {
       proxy_set_header X-Real-IP       \$remote_addr;
