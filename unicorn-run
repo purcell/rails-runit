@@ -1,7 +1,13 @@
 #!/bin/sh -e
 
+#
+# Supervises unicorn; stopping this service prompts a graceful shutdown of the
+# current unicorn instance. Sending HUP to this service causes unicorn to re-exec
+# itself for upgrades etc.
+#
+
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BASE=$(dirname $(readlink $0))
+BASE=$(dirname $(../../readlink_canonical $0))
 APP_DIR=$BASE/app
 THIS_DIR=$(pwd)
 
@@ -22,7 +28,9 @@ if [ ! -d "$APP_DIR" ]; then
 fi
 
 cat <<EOF > unicorn.rb
-worker_processes 10
+working_directory "$APP_DIR"
+
+worker_processes 4
 
 preload_app true
 
@@ -33,7 +41,8 @@ timeout 30
 listen '$THIS_DIR/socket', :backlog => 64
 listen '127.0.0.1:$PORT', :tcp_nopush => true
 
-working_directory "$APP_DIR"
+stderr_path "log/unicorn.stderr.log"
+stdout_path "log/unicorn.stdout.log"
 
 # http://www.rubyenterpriseedition.com/faq.html#adapt_apps_for_cow
 if GC.respond_to?(:copy_on_write_friendly=)
@@ -61,6 +70,7 @@ before_fork do |server, worker|
   old_pid = RAILS_ROOT + '/tmp/pids/unicorn.pid.oldbin'
   if File.exists?(old_pid) && server.pid != old_pid
     begin
+      puts "Shutting down old process"
       Process.kill("QUIT", File.read(old_pid).to_i)
     rescue Errno::ENOENT, Errno::ESRCH
       # someone else did our job for us
@@ -81,4 +91,67 @@ after_fork do |server, worker|
 end
 EOF
 
-exec $UNICORN_RAILS -E production -c $THIS_DIR/unicorn.rb
+function is_pid_running() {
+    set +e
+    if [ -n $1 ] && kill -0 $1 >/dev/null 2>&1; then
+        echo "yes"
+    fi
+    set -e
+}
+
+echo "My pid: $$"
+
+CUR_PID_FILE=$APP_DIR/tmp/pids/unicorn.pid
+OLD_PID_FILE=$CUR_PID_FILE.oldbin
+
+if [ -e $OLD_PID_FILE ]; then
+    OLD_PID=$(cat $OLD_PID_FILE)
+    echo "Unicorn appears to be restarting: waiting for old master ($OLD_PID) to exit"
+    while [ -n "$(is_pid_running $OLD_PID)" ]; do
+        /bin/echo -n '.'
+        sleep 2
+    done
+fi
+
+if [ -e $CUR_PID_FILE ]; then
+    CUR_PID=$(cat $CUR_PID_FILE)
+    if [ -n "$(is_pid_running $CUR_PID)" ]; then
+        echo "Already running as $CUR_PID"
+        RUNNING=true
+    fi
+fi
+
+if [ ! $RUNNING ]; then
+    echo "Starting unicorn"
+    $UNICORN_RAILS -E production -c $THIS_DIR/unicorn.rb -D
+    sleep 2
+    CUR_PID=$(cat $CUR_PID_FILE)
+fi
+
+function restart() {
+    # TODO: regenerate config if this file has changed
+
+    # Tell unicorn to re-exec itself
+    echo "Asking unicorn to re-exec itself with USR2"
+    kill -USR2 $CUR_PID
+    # Wait and then exit -- after runit restarts the script, we'll
+    # wait for the re-exec'd process
+    sleep 2
+    echo "Restarting to supervise new unicorn"
+    exit
+}
+
+function graceful_shutdown() {
+    echo "Requesting graceful shutdown"
+    kill -QUIT $CUR_PID
+}
+
+trap restart HUP QUIT
+trap graceful_shutdown INT TERM
+
+echo "Watching for unicorn ($CUR_PID) exiting"
+while [ -n "$(is_pid_running $CUR_PID)" ]; do
+    /bin/echo -n '.'
+    sleep 2
+done
+echo "Unicorn has exited."
