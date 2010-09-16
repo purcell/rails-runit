@@ -88,6 +88,8 @@ after_fork do |server, worker|
   ActiveRecord::Base.establish_connection
   # Redis and Memcached would go here but their connections are established
   # on demand, so the master never opens a socket
+
+  defined?(Dalli) and Rails.cache.reset
 end
 EOF
 
