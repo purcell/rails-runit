@@ -20,8 +20,8 @@ fi
 
 cat <<EOF > varnish.conf
 backend default {
-  set backend.host = "127.0.0.1";
-  set backend.port = "$BACKEND_PORT";
+  .host = "127.0.0.1";
+  .port = "$BACKEND_PORT";
 }
 
 # only allow purging of cache from localhost
@@ -39,7 +39,7 @@ sub vcl_recv {
     } elsif (req.http.Accept-Encoding ~ "deflate") {
       set req.http.Accept-Encoding = "deflate";
     } else {
-      # unkown algorithm
+      # unknown algorithm
       remove req.http.Accept-Encoding;
     }
   }
