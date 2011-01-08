@@ -12,8 +12,8 @@ else
   VARNISHD=varnishd
 fi
 
-VARNISH_NAME="${USER}-${PORT}"
 TEMP_BASE_DIR=/var/tmp/${USER}-varnish-${PORT}
+VARNISH_NAME=$TEMP_BASE_DIR
 if [ ! -d $TEMP_BASE_DIR ]; then
   mkdir -p $TEMP_BASE_DIR;
   chmod og-rwx $TEMP_BASE_DIR;
