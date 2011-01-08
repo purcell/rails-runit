@@ -31,6 +31,20 @@ acl purge {
 }
 
 sub vcl_recv {
+  # Normalize accept-encoding headers: http://www.varnish-cache.org/docs/trunk/tutorial/vary.html#tutorial-vary
+  if (req.http.Accept-Encoding) {
+      if (req.url ~ "\.(jpg|png|gif|gz|tgz|bz2|tbz|mp3|ogg)$") {
+          # No point in compressing these
+          remove req.http.Accept-Encoding;
+      } elsif (req.http.Accept-Encoding ~ "gzip") {
+          set req.http.Accept-Encoding = "gzip";
+      } elsif (req.http.Accept-Encoding ~ "deflate") {
+          set req.http.Accept-Encoding = "deflate";
+      } else {
+          # unkown algorithm
+          remove req.http.Accept-Encoding;
+      }
+  }
   # The regex used here matches the standard rails cache buster urls
   # e.g. /images/an-image.png?1234567
   if (req.request == "GET" && req.url ~ "\.(css|js|jpg|jpeg|gif|ico|png)\??\d*$") {
