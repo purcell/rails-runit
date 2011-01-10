@@ -45,12 +45,16 @@ sub vcl_recv {
           remove req.http.Accept-Encoding;
       }
   }
+  # Strip non-application cookies from the requests, e.g. cookies set by Google Analytics
+  if (req.http.cookie) {
+    set req.http.cookie = regsuball(req.http.Cookie, "\b__[^=]*?=[^;]+(; )?", "");
+    if (req.http.cookie ~ "^ *$") {
+      remove req.http.cookie;
+    }
+  }
   # The regex used here matches the standard rails cache buster urls
   # e.g. /images/an-image.png?1234567
   if (req.request == "GET" && req.url ~ "\.(css|js|jpg|jpeg|gif|ico|png)\??\d*$") {
-    unset req.http.cookie;
-  }
-  elsif (req.http.cookie !~ "(_session_id|remember_user_token)=") {
     unset req.http.cookie;
   }
 
