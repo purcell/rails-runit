@@ -50,11 +50,12 @@ http {
   keepalive_timeout  65;
   tcp_nodelay        on;
 
-  gzip  on;
-  gzip_min_length  1100;
+  gzip on;
+  gzip_comp_level  3;
   gzip_buffers     4 8k;
+  gzip_min_length  150;
   gzip_proxied     any;
-  gzip_types       text/plain text/html text/xhtml text/css text/js text/csv;
+  gzip_types       text/plain text/html text/xhtml text/css text/js text/csv application/javascript application/x-javascript;
 
   upstream backend {
     server 127.0.0.1:$BACKEND_PORT;
