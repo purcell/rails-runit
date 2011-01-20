@@ -37,6 +37,8 @@ http {
   access_log ${APP_DIR}/log/access.log;
 
   fastcgi_temp_path ${TEMP_BASE_DIR}/fastcgi;
+  uwsgi_temp_path ${TEMP_BASE_DIR}/uwsgi;
+  scgi_temp_path ${TEMP_BASE_DIR}/scgi;
   client_body_temp_path ${TEMP_BASE_DIR}/client-body 1 2;
   proxy_temp_path ${TEMP_BASE_DIR}/proxy;
 
