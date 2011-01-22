@@ -69,6 +69,18 @@ http {
     root ${APP_DIR}/public;
     index index.html index.htm;
 
+    if (\$http_host ~* "^assets[0-9]*\\.(.*)") {
+      set \$asset_parent_domain \$1;
+      set \$rewrite_asset t;
+    }
+    if (!-f \$request_filename) {
+      set \$rewrite_asset "\${rewrite_asset}t";
+    }
+    if (\$rewrite_asset = tt) {
+      rewrite ^ http://\$asset_parent_domain\$request_uri redirect;
+    }
+
+
     location / {
       try_files \$request_uri/index.html \$request_uri.html \$request_uri @params;
     }
