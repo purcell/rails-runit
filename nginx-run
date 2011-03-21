@@ -1,16 +1,8 @@
 #!/bin/sh -e
 
+. ../../bootstrap
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
 BACKEND_PORT=$(basename $(pwd)|awk -F- '{print $3}')
-USER=$(id -un)
-BASE=$(dirname $(readlink $0))
-APP_DIR=$($BASE/readlink_canonical $BASE/app)
-
-if [ -e $BASE/nginx ]; then
-  NGINX=$BASE/nginx
-else
-  NGINX=nginx
-fi
 
 TEMP_BASE_DIR=/var/tmp/${USER}-nginx-${PORT}
 if [ ! -d $TEMP_BASE_DIR ]; then
@@ -34,6 +26,10 @@ events {
 
 
 http {
+  # See http://wiki.nginx.org/NginxHttpLimitReqModule
+  # and http://sysarcana.com/2010/05/26/rate-limiting-with-nginx/
+  limit_req_zone  \$proxy_add_x_forwarded_for zone=one:10m rate=100r/m;
+
   access_log ${APP_DIR}/log/access.log;
 
   fastcgi_temp_path ${TEMP_BASE_DIR}/fastcgi;
@@ -106,4 +102,4 @@ http {
 }
 EOF
 
-exec $NGINX -p $PWD/ -c nginx.conf || echo "do you need to create the symlink '$BASE/nginx?'"
+exec nginx -p $PWD/ -c nginx.conf || echo "do you need to create the symlink '$BASE/bin/nginx?'"

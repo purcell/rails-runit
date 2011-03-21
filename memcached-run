@@ -1,17 +1,11 @@
 #!/bin/sh -e
 
+. ../../bootstrap
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BASE=$(dirname $(readlink $0))
-
-if [ -e $BASE/memcached ]; then
-  MEMCACHED=$BASE/memcached
-else
-  MEMCACHED=memcached
-fi
 
 if [ -z "$PORT" ]; then
   echo "usage: $0 port" 1>&2;
   exit 2
 fi
 
-exec $MEMCACHED start -p $PORT
+exec memcached start -p $PORT

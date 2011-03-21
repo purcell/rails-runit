@@ -6,16 +6,10 @@
 # itself for upgrades etc.
 #
 
-PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BASE=$(dirname $(../../readlink_canonical $0))
-APP_DIR=$BASE/app
-THIS_DIR=$(pwd)
+. ../../bootstrap
 
-if [ -e $BASE/unicorn_rails ]; then
-  UNICORN_RAILS=$BASE/unicorn_rails
-else
-  UNICORN_RAILS=unicorn_rails
-fi
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+THIS_DIR=$(pwd)
 
 if [ -z "$PORT" ]; then
   echo "usage: $0 port" 1>&2;
@@ -125,7 +119,7 @@ fi
 
 if [ ! $RUNNING ]; then
     echo "Starting unicorn"
-    $UNICORN_RAILS -E production -c $THIS_DIR/unicorn.rb -D
+    unicorn_rails -E production -c $THIS_DIR/unicorn.rb -D
     sleep 2
     CUR_PID=$(cat $CUR_PID_FILE)
 fi

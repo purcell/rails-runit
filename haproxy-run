@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+. ../../bootstrap
+
 PORT=$(basename $(pwd)|awk -F- '{print $2}')
 USER=$(id -un)
 
@@ -36,5 +38,4 @@ listen stats 127.0.0.1:$(($PORT - 2))
 	mode http
 	stats uri /
 END
-PATH=/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin
 exec haproxy -db -f haproxy.conf
