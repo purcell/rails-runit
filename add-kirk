@@ -1,0 +1,21 @@
+#!/bin/sh -e
+
+SERVICE_DIR=$(dirname $0)/service
+PORT=$1
+
+if [ -z "$PORT" ]; then
+  echo "usage: $0 port_number" >&2
+  exit 2
+fi
+
+NEW_SERVICE_DIR="$SERVICE_DIR/kirk-$PORT"
+
+if [ ! -e "$NEW_SERVICE_DIR" ]; then
+  mkdir -p "$NEW_SERVICE_DIR"
+  ln -s ../../kirk-run $NEW_SERVICE_DIR/run
+  ln -s ../../check-port $NEW_SERVICE_DIR/check
+  echo "created kirk service $NEW_SERVICE_DIR"
+else
+  echo "kirk service $NEW_SERVICE_DIR already exists" >&2
+  exit 1
+fi
