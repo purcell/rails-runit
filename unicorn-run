@@ -16,11 +16,6 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-if [ ! -d "$APP_DIR" ]; then
-  echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
-  exit 2
-fi
-
 cat <<EOF > unicorn.rb
 working_directory "$APP_DIR"
 
