@@ -9,7 +9,7 @@ BASE=$($BASE/readlink_canonical $BASE)
 PATH=$BASE/script:$BASE/bin:$BASE:$PATH
 export PATH
 USER=$(id -un)
-APP_DIR=$(readlink_canonical $BASE/app)
+APP_DIR=$BASE/app    # Don't expand this link, as deployments can change the symlink chain
 if [ ! -d "$APP_DIR" ]; then
   echo "no such app dir: $APP_DIR (did you create a symlink to your Rails app?)" 1>&2;
   exit 2
