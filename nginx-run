@@ -82,7 +82,7 @@ http {
     }
     location @params {
       try_files \$uri/index.html \$uri.html \$uri @backend;
-      expires max;
+      add_header Cache-Control "public, max-age=315360000";
     }
 
     location @backend {
