@@ -82,6 +82,8 @@ http {
     }
     location @params {
       try_files \$uri/index.html \$uri.html \$uri @backend;
+      # These 2 lines are like "expires max;", but with public caching permitted
+      add_header Expires "Thu, 31 Dec 2037 23:55:55 GMT";
       add_header Cache-Control "public, max-age=315360000";
     }
 
