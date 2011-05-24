@@ -30,7 +30,8 @@ http {
   # and http://sysarcana.com/2010/05/26/rate-limiting-with-nginx/
   limit_req_zone  \$proxy_add_x_forwarded_for zone=one:10m rate=100r/m;
 
-  access_log ${APP_DIR}/log/access.log;
+  #access_log ${APP_DIR}/log/access.log;
+  access_log off;
 
   fastcgi_temp_path ${TEMP_BASE_DIR}/fastcgi;
   uwsgi_temp_path ${TEMP_BASE_DIR}/uwsgi;
