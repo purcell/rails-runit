@@ -15,5 +15,13 @@ if [ ! -d "$APP_DIR" ]; then
   exit 2
 fi
 
+function maybe_bundled () {
+  if [ -f $APP_DIR/Gemfile ]; then
+    echo "bundle exec $@"
+  else
+    echo $@
+  fi
+}
+
 [[ -s "$BASE/bootstrap.user" ]] && . "$BASE/bootstrap.user"
 true

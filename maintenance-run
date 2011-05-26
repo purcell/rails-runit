@@ -9,4 +9,4 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-exec maintenance_server $PORT
+exec $(maybe_bundled maintenance_server) $PORT
