@@ -50,11 +50,12 @@ http {
   tcp_nodelay        on;
 
   gzip on;
+  gzip_disable "msie6";
   gzip_comp_level  3;
-  gzip_buffers     4 8k;
+  gzip_buffers     16 8k;
   gzip_min_length  150;
   gzip_proxied     any;
-  gzip_types       text/plain text/html text/xhtml text/css text/js text/csv application/javascript application/x-javascript;
+  gzip_types       text/plain text/html text/xhtml text/css text/js text/csv application/javascript application/x-javascript application/json application/xml text/xml application/atom+xml application/rss+xml;
 
   upstream backend {
     server 127.0.0.1:$BACKEND_PORT;
