@@ -80,9 +80,17 @@ http {
 
 
     location / {
-      try_files \$request_uri/index.html \$request_uri.html \$request_uri @params;
+      # Handle as regular static files those requests URIs which
+      # exactly match filenames. Requests for static files with query
+      # params (e.g. "?12353234") fall through to the
+      # @static_with_params location
+      try_files \$request_uri/index.html \$request_uri.html \$request_uri @static_with_params;
     }
-    location @params {
+    location @static_with_params {
+      # Special handling for static file requests with query params,
+      # which we assume identify resources which will never change. In
+      # other words, the query params incorporate a timestamp or other
+      # unique element.
       try_files \$uri/index.html \$uri.html \$uri @backend;
       # These 2 lines are like "expires max;", but with public caching permitted
       add_header Expires "Thu, 31 Dec 2037 23:55:55 GMT";
