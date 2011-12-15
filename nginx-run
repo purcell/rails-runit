@@ -67,9 +67,12 @@ http {
     root ${APP_DIR}/public;
     index index.html index.htm;
 
+    # Optimised handling of static assets with trailing numeric
+    # "?TIMESTAMP" or a leading "/@TIMESTAMP/"
     if (\$http_host ~* "^assets[0-9]*\\.(.*)") {
       set \$asset_parent_domain \$1;
       set \$rewrite_asset t;
+      rewrite ^/@([1-9]+)(/[^?]+) \$2?\$1 last;
     }
     if (!-f \$request_filename) {
       set \$rewrite_asset "\${rewrite_asset}t";
