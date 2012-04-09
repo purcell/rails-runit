@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 . ../../bootstrap
 RAILS_ROOT=$APP_DIR exec ferret_server -e production run
