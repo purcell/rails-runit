@@ -50,6 +50,7 @@ http {
   tcp_nodelay        on;
 
   gzip on;
+  gzip_vary on;
   gzip_disable "msie6";
   gzip_comp_level  3;
   gzip_buffers     16 8k;
