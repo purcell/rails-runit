@@ -48,7 +48,7 @@ sub vcl_recv {
   # The regex used here matches the standard rails cache buster urls
   # e.g. /images/an-image.png?1234567
   if (req.request == "GET" && req.url ~ "\.(css|js|jpg|jpeg|gif|ico|png)\??\d*$") {
-    unset req.http.cookie;
+    remove req.http.cookie;
   }
 
   if (req.request != "GET" && req.request != "HEAD") {
