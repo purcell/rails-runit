@@ -40,7 +40,10 @@ sub vcl_recv {
   }
   # Strip non-application cookies from the requests, e.g. cookies set by Google Analytics
   if (req.http.cookie) {
-    set req.http.cookie = regsuball(req.http.Cookie, "\b__[^=]*?=[^;]+(; )?", "");
+    // Remove has_js and Google Analytics __* cookies.
+    set req.http.Cookie = regsuball(req.http.Cookie, "(^|;\s*)(__[_a-z]+|has_js)=[^;]*", "");
+    // Remove a ";" prefix, if present.
+    set req.http.Cookie = regsub(req.http.Cookie, "^;\s*", "");
     if (req.http.cookie ~ "^ *$") {
       remove req.http.cookie;
     }
