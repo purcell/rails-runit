@@ -51,13 +51,19 @@ sub vcl_recv {
     remove req.http.cookie;
   }
 
+  if (req.http.Authorization || req.http.Cookie) {
+    return (pass);
+  }
+
   if (req.request != "GET" && req.request != "HEAD") {
     if (req.request == "PURGE") {
       if (!client.ip ~ purge) {
         error 405 "Not allowed.";
       }
     }
+    return (pass);
   }
+  return (lookup);
 }
 
 sub vcl_deliver {
@@ -66,6 +72,7 @@ sub vcl_deliver {
   } else {
     set resp.http.X-Cache = "MISS";
   }
+  return (deliver);
 }
 EOF
 
