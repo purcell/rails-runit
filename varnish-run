@@ -54,6 +54,15 @@ sub vcl_recv {
     remove req.http.cookie;
   }
 
+  # Stripping certain params, e.g.
+  # utm_* - analytics campaign tracking tags
+  if (req.url ~ "\?") {
+     set req.url = regsub(req.url, "\?(ref|scp|sq|st|src|utm_[a-z_]+)(\=[^&]*)?", "?");
+     set req.url = regsuball(req.url, "&(ref|scp|sq|st|src|utm_[a-z_]+)(\=[^&]*)?(?=&|$)", "");
+     set req.url = regsub(req.url, "\?&", "?");
+     set req.url = regsub(req.url, "\?$", "");
+  }
+
   if (req.http.Authorization || req.http.Cookie) {
     return (pass);
   }
