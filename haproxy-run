@@ -38,4 +38,4 @@ listen stats 127.0.0.1:$(($PORT - 2))
 	mode http
 	stats uri /
 END
-exec haproxy -db -f haproxy.conf
+exec haproxy -db -f haproxy.conf 2>&1

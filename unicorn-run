@@ -119,7 +119,7 @@ fi
 
 if [ ! $RUNNING ]; then
     echo "Starting unicorn"
-    cd $APP_DIR && unicorn_rails -E production -c $THIS_DIR/unicorn.rb -D
+    cd $APP_DIR && unicorn_rails -E production -c $THIS_DIR/unicorn.rb -D 2>&1
     sleep 2
     CUR_PID=$(cat $CUR_PID_FILE)
 fi

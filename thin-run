@@ -8,4 +8,4 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-exec thin start -e production -p $PORT -c $APP_DIR
+exec thin start -e production -p $PORT -c $APP_DIR 2>&1

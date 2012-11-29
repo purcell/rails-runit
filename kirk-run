@@ -2,4 +2,4 @@
 
 . ../../bootstrap
 
-cd $APP_DIR && exec kirk start
+cd $APP_DIR && exec kirk start 2>&1

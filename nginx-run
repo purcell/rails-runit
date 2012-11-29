@@ -118,4 +118,4 @@ http {
 }
 EOF
 
-exec nginx -p $PWD/ -c nginx.conf || echo "do you need to create the symlink '$BASE/bin/nginx?'"
+exec nginx -p $PWD/ -c nginx.conf 2>&1 || echo "do you need to create the symlink '$BASE/bin/nginx?'"

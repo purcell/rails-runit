@@ -88,4 +88,4 @@ sub vcl_deliver {
 }
 EOF
 
-exec varnishd -a 127.0.0.1:$PORT -F -f varnish.conf -s file,$TEMP_BASE_DIR/data,200MB -n $VARNISH_NAME || echo "do you need to create the symlink '$BASE/varnishd?'"
+exec varnishd -a 127.0.0.1:$PORT -F -f varnish.conf -s file,$TEMP_BASE_DIR/data,200MB -n $VARNISH_NAME 2>&1 || echo "do you need to create the symlink '$BASE/varnishd?'"

@@ -8,4 +8,4 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-exec memcached start -p $PORT
+exec memcached start -p $PORT 2>&1
