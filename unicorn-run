@@ -38,6 +38,8 @@ if GC.respond_to?(:copy_on_write_friendly=)
   GC.copy_on_write_friendly = true
 end
 
+check_client_connection true
+
 # Prevent a dangling reference to the old working directory when restarting
 # See https://willj.net/2011/08/02/fixing-the-gemfile-not-found-bundlergemfilenotfound-error/
 before_exec do |server|
