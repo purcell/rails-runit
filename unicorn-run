@@ -19,7 +19,7 @@ fi
 cat <<EOF > unicorn.rb
 working_directory "$APP_DIR"
 
-worker_processes 4
+worker_processes 8
 
 preload_app true
 
