@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+. ../../bootstrap
+PORT=$(basename $(pwd)|awk -F- '{print $2}')
+
+if [ -z "$PORT" ]; then
+  echo "usage: $0 port" 1>&2;
+  exit 2
+fi
+
+cd $APP_DIR && exec mizuno -E production -p $PORT --reloadable 2>&1
