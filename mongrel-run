@@ -8,4 +8,4 @@ if [ -z "$PORT" ]; then
   exit 2
 fi
 
-exec mongrel_rails start -e production -p $PORT -c $APP_DIR 2>&1
+cd $APP_DIR && exec mongrel_rails start -e production -p $PORT 2>&1
