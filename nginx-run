@@ -16,7 +16,7 @@ daemon off;
 
 pid ${TEMP_BASE_DIR}/pid;  # we don't want this, but it's mandatory
 
-worker_processes 2;
+worker_processes 4;
 
 error_log ${APP_DIR}/log/nginx-errors.log;
 
@@ -32,6 +32,8 @@ http {
 
   #access_log ${APP_DIR}/log/access.log;
   access_log off;
+
+  server_tokens off;
 
   fastcgi_temp_path ${TEMP_BASE_DIR}/fastcgi;
   uwsgi_temp_path ${TEMP_BASE_DIR}/uwsgi;
