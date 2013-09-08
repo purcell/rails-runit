@@ -75,7 +75,7 @@ http {
     if (\$http_host ~* "^assets[0-9]*\\.(.*)") {
       set \$asset_parent_domain \$1;
       set \$rewrite_asset t;
-      rewrite "^(/[^?]+)(-[0-9]{10})(\..*)" \$1\$3 last;
+      rewrite "^(/[^?]+)(-[0-9]{10})(\\..*)" \$1\$3 last;
       rewrite "^/@([0-9]{10})(/[^?]+)" \$2?\$1 last;
     }
     if (!-f \$request_filename) {
