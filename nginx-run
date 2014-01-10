@@ -93,6 +93,7 @@ http {
       # params (e.g. "?12353234") fall through to the
       # @static_with_params location
       try_files \$request_uri/index.html \$request_uri.html \$request_uri @static_with_params;
+      add_header Cache-Control "public";
     }
     location @static_with_params {
       # Special handling for static file requests with query params,
