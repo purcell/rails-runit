@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 . ../../bootstrap
-PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BACKEND_PORT=$(basename $(pwd)|awk -F- '{print $3}')
+PORT=$(basename "$(pwd)"|awk -F- '{print $2}')
+BACKEND_PORT=$(basename "$(pwd)"|awk -F- '{print $3}')
 
 TEMP_BASE_DIR=/var/tmp/${USER}-nginx-${PORT}
-if [ ! -d $TEMP_BASE_DIR ]; then
-  mkdir -p $TEMP_BASE_DIR;
-  chmod og-rwx $TEMP_BASE_DIR;
+if [ ! -d "$TEMP_BASE_DIR" ]; then
+  mkdir -p "$TEMP_BASE_DIR";
+  chmod og-rwx "$TEMP_BASE_DIR";
 fi
 
 cat <<EOF > nginx.conf
@@ -122,4 +122,4 @@ http {
 }
 EOF
 
-exec nginx -p $PWD/ -c nginx.conf 2>&1 || echo "do you need to create the symlink '$BASE/bin/nginx?'"
+exec nginx -p "$PWD/" -c nginx.conf 2>&1 || echo "do you need to create the symlink '$BASE/bin/nginx?'"
