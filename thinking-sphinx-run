@@ -3,4 +3,4 @@
 . ../../bootstrap
 PORT=$(basename "$(pwd)" |awk -F- '{print $2}')
 
-cd "$APP_DIR" && RAILS_ENV=production $(maybe_bundled rake) ts:in && sleep 300 2>&1
+cd "$APP_DIR" && $(maybe_bundled rake) ts:in && sleep 300 2>&1
