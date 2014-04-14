@@ -8,7 +8,7 @@
 
 . ../../bootstrap
 
-PORT=$(basename $(pwd)|awk -F- '{print $2}')
+PORT=$(basename "$(pwd)" |awk -F- '{print $2}')
 THIS_DIR=$(pwd)
 
 if [ -z "$PORT" ]; then
@@ -91,7 +91,7 @@ EOF
 
 function is_pid_running() {
     set +e
-    if [ -n $1 ] && kill -0 $1 >/dev/null 2>&1; then
+    if [ -n "$1" ] && kill -0 "$1" >/dev/null 2>&1; then
         echo "yes"
     fi
     set -e
@@ -102,18 +102,18 @@ echo "My pid: $$"
 CUR_PID_FILE=$APP_DIR/tmp/pids/unicorn.pid
 OLD_PID_FILE=$CUR_PID_FILE.oldbin
 
-if [ -e $OLD_PID_FILE ]; then
-    OLD_PID=$(cat $OLD_PID_FILE)
+if [ -e "$OLD_PID_FILE" ]; then
+    OLD_PID=$(cat "$OLD_PID_FILE")
     echo "Unicorn appears to be restarting: waiting for old master ($OLD_PID) to exit"
-    while [ -n "$(is_pid_running $OLD_PID)" ]; do
+    while [ -n "$(is_pid_running "$OLD_PID")" ]; do
         /bin/echo -n '.'
         sleep 2
     done
 fi
 
-if [ -e $CUR_PID_FILE ]; then
-    CUR_PID=$(cat $CUR_PID_FILE)
-    if [ -n "$(is_pid_running $CUR_PID)" ]; then
+if [ -e "$CUR_PID_FILE" ]; then
+    CUR_PID=$(cat "$CUR_PID_FILE")
+    if [ -n "$(is_pid_running "$CUR_PID")" ]; then
         echo "Already running as $CUR_PID"
         RUNNING=true
     fi
@@ -121,9 +121,9 @@ fi
 
 if [ ! $RUNNING ]; then
     echo "Starting unicorn"
-    cd $APP_DIR && unicorn_rails -E production -c $THIS_DIR/unicorn.rb -D 2>&1
+    cd "$APP_DIR" && unicorn_rails -E production -c "$THIS_DIR/unicorn.rb" -D 2>&1
     sleep 2
-    CUR_PID=$(cat $CUR_PID_FILE)
+    CUR_PID=$(cat "$CUR_PID_FILE")
 fi
 
 function restart() {
@@ -131,7 +131,7 @@ function restart() {
 
     # Tell unicorn to re-exec itself
     echo "Asking unicorn to re-exec itself with USR2"
-    kill -USR2 $CUR_PID
+    kill -USR2 "$CUR_PID"
     # Wait and then exit -- after runit restarts the script, we'll
     # wait for the re-exec'd process
     sleep 2
@@ -141,14 +141,14 @@ function restart() {
 
 function graceful_shutdown() {
     echo "Requesting graceful shutdown"
-    kill -QUIT $CUR_PID
+    kill -QUIT "$CUR_PID"
 }
 
 trap restart HUP QUIT
 trap graceful_shutdown INT TERM
 
 echo "Watching for unicorn ($CUR_PID) exiting"
-while [ -n "$(is_pid_running $CUR_PID)" ]; do
+while [ -n "$(is_pid_running "$CUR_PID")" ]; do
     /bin/echo -n '.'
     sleep 2
 done

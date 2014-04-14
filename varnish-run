@@ -2,14 +2,14 @@
 
 . ../../bootstrap
 
-PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BACKEND_PORT=$(basename $(pwd)|awk -F- '{print $3}')
+PORT=$(basename "$(pwd)"|awk -F- '{print $2}')
+BACKEND_PORT=$(basename "$(pwd)"|awk -F- '{print $3}')
 
 TEMP_BASE_DIR=/var/tmp/${USER}-varnish-${PORT}
 VARNISH_NAME=$TEMP_BASE_DIR
-if [ ! -d $TEMP_BASE_DIR ]; then
-  mkdir -p $TEMP_BASE_DIR;
-  chmod og-rwx $TEMP_BASE_DIR;
+if [ ! -d "$TEMP_BASE_DIR" ]; then
+  mkdir -p "$TEMP_BASE_DIR";
+  chmod og-rwx "$TEMP_BASE_DIR";
 fi
 
 cat <<EOF > varnish.conf
@@ -88,4 +88,4 @@ sub vcl_deliver {
 }
 EOF
 
-exec varnishd -a 127.0.0.1:$PORT -F -f varnish.conf -s file,$TEMP_BASE_DIR/data,200MB -n $VARNISH_NAME 2>&1 || echo "do you need to create the symlink '$BASE/varnishd?'"
+exec varnishd -a "127.0.0.1:$PORT" -F -f varnish.conf -s "file,$TEMP_BASE_DIR/data,200MB" -n "$VARNISH_NAME" 2>&1 || echo "do you need to create the symlink '$BASE/varnishd?'"

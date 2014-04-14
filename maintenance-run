@@ -1,12 +1,11 @@
 #!/bin/bash -e
 
 . ../../bootstrap
-PORT=$(basename $(pwd)|awk -F- '{print $2}')
-BASE=$(dirname $(readlink $0))
+PORT=$(basename "$(pwd)" |awk -F- '{print $2}')
 
 if [ -z "$PORT" ]; then
   echo "usage: $0 port" 1>&2;
   exit 2
 fi
 
-cd $APP_DIR && exec $(maybe_bundled script/maintenance_server) $PORT 2>&1
+cd "$APP_DIR" && exec "$(maybe_bundled script/maintenance_server)" "$PORT" 2>&1
