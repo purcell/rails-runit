@@ -10,4 +10,4 @@ if [ -z "$PORT" ]; then
 fi
 
 export PORT
-cd "$APP_DIR" && exec puma -C config/puma.rb
+cd "$APP_DIR" && exec bundle exec puma -C config/puma.rb
