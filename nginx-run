@@ -58,7 +58,7 @@ http {
   gzip_buffers     16 8k;
   gzip_min_length  150;
   gzip_proxied     any;
-  gzip_types       text/plain text/xhtml text/css text/js text/csv application/javascript application/x-javascript application/json application/xml text/xml application/atom+xml application/rss+xml;
+  gzip_types       text/plain text/xhtml text/css text/js text/csv application/javascript application/x-javascript application/json application/xml text/xml application/atom+xml application/rss+xml image/svg+xml;
 
   upstream backend {
     server 127.0.0.1:$BACKEND_PORT;
