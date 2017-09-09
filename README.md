@@ -1,44 +1,52 @@
+<a href="https://www.patreon.com/sanityinc"><img alt="Support me" src="https://img.shields.io/badge/Support%20Me-%F0%9F%92%97-ff69b4.svg"></a>
+
 Runit services for heavy-duty Rails hosting
 ===========================================
 
 Here's a bunch of scripts for deploying a full production Rails app
 that runs under runit.
 
-This scheme is currently used to run several large production
-Rails apps, including http://www.looktothestars.org/, and it
-has workd very nicely for a couple of years now.  More reliable
-than system-wide init.d scripts, and fewer permission headaches.
+This scheme is currently used to run several large production Rails
+apps, including [looktothesters.org](https://www.looktothestars.org/),
+and it has worked very nicely for a couple of years now.  More
+reliable than system-wide init.d scripts, and fewer permission
+headaches.
 
 
 How to use it
 =============
 
 Create an unprivileged user for your Rails app, then set up a
-system-wide Runit service to manage user-specific services for
-that user -- see the following page for details:
-
-  http://www.sanityinc.com/articles/init-scripts-considered-harmful
+system-wide Runit service to manage user-specific services for that
+user -- see [this page for
+details](http://www.sanityinc.com/articles/init-scripts-considered-harmful).
 
 All further steps assume that you are working as the unprivileged user.
 
 Now, clone this project into the user's home directory:
 
- cd
- git clone git://github.com/purcell/rails-runit.git
+```
+cd
+git clone git://github.com/purcell/rails-runit.git
+```
 
 Symlink your rails app's root directory to this directory with the
 name 'app':
 
- ln -s ~appuser/releases/current ~/rails-runit/app
+```
+ln -s ~appuser/releases/current ~/rails-runit/app
+```
 
 Now you can create some services:
 
- cd ~/rails-runit
- ./add-mongrel 4001
- ./add-mongrel 4002
- ./add-mongrel 4003
- ./add-haproxy 4000
- ./add-nginx 4020 4000
+```
+cd ~/rails-runit
+./add-mongrel 4001
+./add-mongrel 4002
+./add-mongrel 4003
+./add-haproxy 4000
+./add-nginx 4020 4000
+```
 
 This creates (potential) runit services under ~/rails-runit/service.
 Symlink them to ~/service, and runit will start them for you.
@@ -53,7 +61,9 @@ page.
 You can then easily restart your app (e.g. as part of a capistrano
 deployment) like this:
 
-  sv restart ~/service/mongrel-*
+```
+sv restart ~/service/mongrel-*
+```
 
 Further "add-*" and "*-run" scripts are provided for varnish and
 ferret_server.
